@@ -1,120 +1,41 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <curses.h>
+#include "Tetris.h"
+//#include <curses.h>
 
-#define H 15
-#define W 12
-
-//typedef enum {false, true} bool;
-
-struct point
-{
-    int *x;
-    int *y;
-};
-
-struct piece
-{
-    int dim;
-    struct point parts[4];
-};
-
-void mprintf(char matrix[H][W], int length, int height);
-bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
-void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
-bool keyParse(char command, char matrix[H][W], struct point *curr, struct piece *orig);
-int checkRow(char matrix[H][W], int row);
-int checkAll(char matrix[H][W]);
-struct piece *initBank();
+//typedef enum {false,true} bool;
 
 int main()
 {
-    initscr();
-    noecho();
-    nodelay(stdscr,TRUE);
 
+};
+
+void init(char matrix[H][W], struct point *curr, struct piece *bank, int *score)
+{
     srand ( time(NULL) );
-    struct piece *bank = initBank();
-
-    char grid[H][W];
+    bank = initBank();
 
     int k,l;
 
     for (k=0;k<H;k++)
         for (l=0;l<W;l++)
-            grid[k][l] = '.';
+            matrix[k][l] = '.';
 
     for (k=0;k<H;k++)
-        grid[k][0] = grid[k][W-1] = '|';
+        matrix[k][0] = matrix[k][W-1] = '|';
     for (k=0;k<W;k++)
-        grid[H-1][k] = '-';
+        matrix[H-1][k] = '-';
 
-    grid[H-1][0] = grid[H-1][W-1] = '+';
+    matrix[H-1][0] = matrix[H-1][W-1] = '+';
 
-    struct point *curr;
     curr = malloc(sizeof(curr));
     curr->x = malloc(sizeof(int));
     curr->y = malloc(sizeof(int));
 
-    //grid[*(curr->x)][*(curr->y)] = '*';
-
-    mprintf(grid, W, H);
-
-    int score = 0;
-
-    while (!checkRow(grid,0))
-    {
-        struct piece orig = bank[rand()%7];
-        bool end = false;
-        *(curr->x) = W/2-2;
-        *(curr->y) = 0;
-        int i;
-        for (i=0;i<4;i++)
-        {
-            grid[ *(curr->y) + *((orig.parts[i]).y) - 1 ][( *(curr->x)) + *((orig.parts[i]).x) - 1 ] = '#'; //implement different chars for diff pieces
-        };
-
-        mvprintw(2,W+1,"+---------------+", score);
-        mvprintw(3,W+1,"| Points: %.5d |", score);
-        mvprintw(4,W+1,"+---------------+", score);
-
-        char ch = 0;
-        int startTime = clock();
-        while (!end) //(i=0;i<10;i++)
-        {
-            refresh();
-            end = keyParse(ch, grid, curr, &orig);
-            if (clock()-startTime>500000)
-            {
-                end = movePiece(grid, curr, &orig, 2);
-                startTime = clock();
-            };
-            mprintf(grid, W, H);
-            ch = getch();
-        };
-        int addition = checkAll(grid);
-        score += addition * addition;
-    };
-    mvaddstr(H/2-1,W/2-7,"+------------+");
-    mvaddstr(H/2,W/2-7, "| Game Over! |");
-    mvaddstr(H/2+1,W/2-7,"+------------+");
-    move(H,W);
-    refresh();
-    nodelay(stdscr,FALSE);
-    getch();
-    endwin();
-    return 0;
+    score = 0;
 };
 
-void mprintf(char matrix[H][W], int length, int height)
+void dropBlock()
 {
-    int i,j;
-    for (i=0;i<height;i++)
-    {
-        for (j=0;j<length;j++)
-            mvaddch(i+1,j+1,matrix[i][j]);
-    }
+
 };
 
 bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
@@ -278,7 +199,7 @@ bool keyParse(char command, char matrix[H][W], struct point *curr, struct piece 
             break;
     };
     return end;
-}
+};
 
 int checkRow(char matrix[H][W], int row) // 0 == none, 1 == some, 2 == full
 {
@@ -400,7 +321,6 @@ struct piece *initBank()
         *((pieces[6].parts[3]).y = malloc(sizeof(int))) = 1;
         *((pieces[6].parts[3]).x = malloc(sizeof(int))) = 3;
     };
-// Add other pieces
 
     return pieces;
 }
