@@ -1,13 +1,12 @@
-// Error: exit when it hits wall.
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <curses.h>
 
-#define H 22
+#define H 15
 #define W 12
 
-typedef enum {False, True} bool;
+//typedef enum {false, true} bool;
 
 struct point
 {
@@ -22,14 +21,19 @@ struct piece
 };
 
 void mprintf(char matrix[H][W], int length, int height);
-bool move(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
+bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
 void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
 bool keyParse(char command, char matrix[H][W], struct point *curr, struct piece *orig);
 int checkRow(char matrix[H][W], int row);
+int checkAll(char matrix[H][W]);
 struct piece *initBank();
 
 int main()
 {
+    initscr();
+    noecho();
+    nodelay(stdscr,TRUE);
+
     srand ( time(NULL) );
     struct piece *bank = initBank();
 
@@ -46,6 +50,8 @@ int main()
     for (k=0;k<W;k++)
         grid[H-1][k] = '-';
 
+    grid[H-1][0] = grid[H-1][W-1] = '+';
+
     struct point *curr;
     curr = malloc(sizeof(curr));
     curr->x = malloc(sizeof(int));
@@ -55,11 +61,12 @@ int main()
 
     mprintf(grid, W, H);
 
-    printf("%d",checkRow(grid,0));
+    int score = 0;
+
     while (!checkRow(grid,0))
     {
-        struct piece orig = bank[5];
-        bool end = False;
+        struct piece orig = bank[rand()%7];
+        bool end = false;
         *(curr->x) = W/2-2;
         *(curr->y) = 0;
         int i;
@@ -67,17 +74,36 @@ int main()
         {
             grid[ *(curr->y) + *((orig.parts[i]).y) - 1 ][( *(curr->x)) + *((orig.parts[i]).x) - 1 ] = '#'; //implement different chars for diff pieces
         };
+
+        mvprintw(2,W+1,"+---------------+", score);
+        mvprintw(3,W+1,"| Points: %.5d |", score);
+        mvprintw(4,W+1,"+---------------+", score);
+
         char ch = 0;
+        int startTime = clock();
         while (!end) //(i=0;i<10;i++)
         {
+            refresh();
             end = keyParse(ch, grid, curr, &orig);
-            system("cls");
+            if (clock()-startTime>500000)
+            {
+                end = movePiece(grid, curr, &orig, 2);
+                startTime = clock();
+            };
             mprintf(grid, W, H);
-            printf("%d - %c -\n",ch,ch);
-            ch = getch(stdin);
+            ch = getch();
         };
+        int addition = checkAll(grid);
+        score += addition * addition;
     };
-
+    mvaddstr(H/2-1,W/2-7,"+------------+");
+    mvaddstr(H/2,W/2-7, "| Game Over! |");
+    mvaddstr(H/2+1,W/2-7,"+------------+");
+    move(H,W);
+    refresh();
+    nodelay(stdscr,FALSE);
+    getch();
+    endwin();
     return 0;
 };
 
@@ -87,14 +113,13 @@ void mprintf(char matrix[H][W], int length, int height)
     for (i=0;i<height;i++)
     {
         for (j=0;j<length;j++)
-            printf("%c",matrix[i][j]);
-        printf("\n");
+            mvaddch(i+1,j+1,matrix[i][j]);
     }
 };
 
-bool move(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
+bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
 {
-    bool hit = False, end = False;
+    bool hit = false, end = false;
     int i;
     int x[4];
     int y[4];
@@ -129,9 +154,9 @@ bool move(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
     {
         if (matrix[ y[i] + *((orig->parts[i]).y) - 1 ][ x[i] + *((orig->parts[i]).x) - 1 ] != '.')
             {
-                hit = True;
+                hit = true;
                 if (dir == 2)
-                    end = True;
+                    end = true;
             };
     };
 
@@ -156,7 +181,7 @@ bool move(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
 
 void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
 {
-    bool hit = False;
+    bool hit = false;
     int i;
     int x[4];
     int y[4];
@@ -212,7 +237,7 @@ void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
     for (i=0;i<4;i++)
     {
         if (matrix[ *(curr->y) + y[i] - 1 ][( *(curr->x)) + x[i] - 1 ] != '.')
-            hit = True;
+            hit = true;
     };
 
     for (i=0;i<4;i++)
@@ -234,20 +259,20 @@ void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
 
 bool keyParse(char command, char matrix[H][W], struct point *curr, struct piece *orig)
 {
-    bool end = False;
+    bool end = false;
     switch ((int)command)
     {
         case 119: // up
             rotate(matrix, curr, orig, 1);
             break;
         case 115: // down
-            end = move(matrix, curr, orig, 2);
+            end = movePiece(matrix, curr, orig, 2);
             break;
         case 97: // left
-            end = move(matrix, curr, orig, 3);
+            end = movePiece(matrix, curr, orig, 3);
             break;
         case 100: // right
-            end = move(matrix, curr, orig, 4);
+            end = movePiece(matrix, curr, orig, 4);
             break;
         default:
             break;
@@ -264,10 +289,32 @@ int checkRow(char matrix[H][W], int row) // 0 == none, 1 == some, 2 == full
             count++;
     if (count == 0)
         return 0;
-    else if (count == W)
+    else if (count == W-2)
         return 2;
     else
         return 1;
+};
+
+int checkAll(char matrix[H][W])
+{
+    int lines = 0;
+    int full;
+    int currRow = H-2;
+    while (currRow>0)
+    {
+        full = checkRow(matrix,currRow);
+        if (full == 2)
+        {
+            lines++;
+            int i,j;
+            for (i=currRow;i>0;i--)
+                for (j=0;j<W-1;j++)
+                    matrix[i][j] = matrix[i-1][j];
+        }
+        else
+            currRow--;
+    };
+    return lines;
 };
 
 struct piece *initBank()
