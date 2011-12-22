@@ -1,4 +1,4 @@
-// Working on putting blocks in
+// Error: exit when it hits wall.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 #define H 22
 #define W 12
 
-typedef enum {True, False} bool;
+typedef enum {False, True} bool;
 
 struct point
 {
@@ -22,9 +22,9 @@ struct piece
 };
 
 void mprintf(char matrix[H][W], int length, int height);
-bool move(char matrix[H][W], struct point *orig, int dir);
-bool rotate(char matrix[H][W], struct piece *orig, int dir);
-void keyParse(char command, char matrix[H][W], struct point *curr);
+bool move(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
+void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
+bool keyParse(char command, char matrix[H][W], struct point *curr, struct piece *orig);
 int checkRow(char matrix[H][W], int row);
 struct piece *initBank();
 
@@ -32,7 +32,6 @@ int main()
 {
     srand ( time(NULL) );
     struct piece *bank = initBank();
-
 
     char grid[H][W];
 
@@ -52,21 +51,26 @@ int main()
     curr->x = malloc(sizeof(int));
     curr->y = malloc(sizeof(int));
 
-    *(curr->x) = 3;
-    *(curr->y) = 3;
-
-    grid[*(curr->x)][*(curr->y)] = '*';
+    //grid[*(curr->x)][*(curr->y)] = '*';
 
     mprintf(grid, W, H);
 
     printf("%d",checkRow(grid,0));
-
     while (!checkRow(grid,0))
     {
-        char ch = 0;
-        while (ch!=27) //(i=0;i<10;i++)
+        struct piece orig = bank[5];
+        bool end = False;
+        *(curr->x) = W/2-2;
+        *(curr->y) = 0;
+        int i;
+        for (i=0;i<4;i++)
         {
-            keyParse(ch, grid, curr);
+            grid[ *(curr->y) + *((orig.parts[i]).y) - 1 ][( *(curr->x)) + *((orig.parts[i]).x) - 1 ] = '#'; //implement different chars for diff pieces
+        };
+        char ch = 0;
+        while (!end) //(i=0;i<10;i++)
+        {
+            end = keyParse(ch, grid, curr, &orig);
             system("cls");
             mprintf(grid, W, H);
             printf("%d - %c -\n",ch,ch);
@@ -88,61 +92,71 @@ void mprintf(char matrix[H][W], int length, int height)
     }
 };
 
-bool move(char matrix[H][W], struct point *orig, int dir)
+bool move(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
 {
-    switch (dir)
+    bool hit = False, end = False;
+    int i;
+    int x[4];
+    int y[4];
+    for (i=0;i<4;i++)
     {
-        case 0: // no movement
-            break;
+        switch (dir)
+        {
+            case 2:
+                x[i] = *(curr->x);
+                y[i] = *(curr->y)+1;
 
-        case 1: // up
-            if (*(orig->y) > 0 && matrix[(*(orig->y))-1][*(orig->x)] == '.')
-            {
-                matrix[  *(orig->y)      ][ *(orig->x) ] = '.';
-                matrix[ (*(orig->y)) - 1 ][ *(orig->x) ] = '*';
-                (*(orig->y))--;
-            }
-            else return True;
-            break;
-
-        case 2: // down
-            if (*(orig->y) < H-1 && matrix[(*(orig->y))+1][*(orig->x)] == '.')
-            {
-                matrix[  *(orig->y)      ][ *(orig->x) ] = '.';
-                matrix[ (*(orig->y)) + 1 ][ *(orig->x) ] = '*';
-                (*(orig->y))++;
-            }
-            else return True;
-            break;
-
-        case 3: // left
-            if (*(orig->x) > 0 && matrix[ *(orig->y) ][( *(orig->x)) - 1 ] == '.')
-            {
-                matrix[ *(orig->y) ][  *(orig->x)      ] = '.';
-                matrix[ *(orig->y) ][ (*(orig->x)) - 1 ] = '*';
-                (*(orig->x))--;
-            }
-            else return True;
-            break;
-
-        case 4: // right
-            if (*(orig->x) < W-1 && matrix[*(orig->y)][ (*(orig->x))+1] == '.')
-            {
-                matrix[ *(orig->y) ][  *(orig->x)      ] = '.';
-                matrix[ *(orig->y) ][ (*(orig->x)) + 1 ] = '*';
-                (*(orig->x))++;
-            }
-            else return True;
-            break;
-
-        default:
-            break;
+                break;
+            case 3:
+                x[i] = *(curr->x)-1;
+                y[i] = *(curr->y);
+                break;
+            case 4:
+                x[i] = *(curr->x)+1;
+                y[i] = *(curr->y);
+                break;
+            default:
+                break;
+        };
     };
-    return False;
+
+    for (i=0;i<4;i++)
+    {
+        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = '.';
+    };
+
+    for (i=0;i<4;i++)
+    {
+        if (matrix[ y[i] + *((orig->parts[i]).y) - 1 ][ x[i] + *((orig->parts[i]).x) - 1 ] != '.')
+            {
+                hit = True;
+                if (dir == 2)
+                    end = True;
+            };
+    };
+
+    for (i=0;i<4;i++)
+    {
+        if (!hit)
+        {
+            if (x[i] < 0)
+                *(curr->x) = x[i];
+            else
+                *(curr->x) = x[i];
+            if (y[i] < 0)
+                *(curr->y) = y[i];
+            else
+                *(curr->y) = y[i];
+        };
+        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = '#'; //implement different chars for diff pieces
+    };
+
+    return end;
 }
 
-bool rotate(char matrix[H][W], struct piece *orig, int dir)
+void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
 {
+    bool hit = False;
     int i;
     int x[4];
     int y[4];
@@ -156,6 +170,9 @@ bool rotate(char matrix[H][W], struct piece *orig, int dir)
             temp = y[i];
             y[i] = x[i];
             x[i] = - temp;
+
+            x[i]+=2;
+            y[i]+=2;
         };
     }
     else
@@ -163,52 +180,79 @@ bool rotate(char matrix[H][W], struct piece *orig, int dir)
         for (i=0;i<4;i++)
         {
             if (*((orig->parts[i]).x) < 3)
-                printf("%d",x[i] = *((orig->parts[i]).x)-3);
+                x[i] = *((orig->parts[i]).x)-3;
             else
-                printf("%d",x[i] = *((orig->parts[i]).x)-2);
+                x[i] = *((orig->parts[i]).x)-2;
             if (*((orig->parts[i]).y) < 3)
-                {y[i] = *((orig->parts[i]).y)-3;}
+                y[i] = *((orig->parts[i]).y)-3;
             else
                 y[i] = *((orig->parts[i]).y)-2;
             int temp;
             temp = y[i];
             y[i] = x[i];
             x[i] = - temp;
+
             if (x[i] < 0)
-                *((orig->parts[i]).x) = 3 + x[i];
+                x[i] += 3;
             else
-                *((orig->parts[i]).x) = 2 + x[i];
+                x[i] += 2;
             if (y[i] < 0)
-                *((orig->parts[i]).y) = 3 + y[i];
+                y[i] += 3;
             else
-                *((orig->parts[i]).y) = 2 + y[i];
+                y[i] += 2;
         };
 
     };
 
-    return False;
+    for (i=0;i<4;i++)
+    {
+        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = '.';
+    };
+
+    for (i=0;i<4;i++)
+    {
+        if (matrix[ *(curr->y) + y[i] - 1 ][( *(curr->x)) + x[i] - 1 ] != '.')
+            hit = True;
+    };
+
+    for (i=0;i<4;i++)
+    {
+        if (!hit)
+        {
+            if (x[i] < 0)
+                *((orig->parts[i]).x) = x[i];
+            else
+                *((orig->parts[i]).x) = x[i];
+            if (y[i] < 0)
+                *((orig->parts[i]).y) = y[i];
+            else
+                *((orig->parts[i]).y) = y[i];
+        };
+        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = '#'; //implement different chars for diff pieces
+    };
 };
 
-void keyParse(char command, char matrix[H][W], struct point *curr)
+bool keyParse(char command, char matrix[H][W], struct point *curr, struct piece *orig)
 {
-    bool hit = False;
+    bool end = False;
     switch ((int)command)
     {
         case 119: // up
-            hit = move(matrix, curr, 1);
+            rotate(matrix, curr, orig, 1);
             break;
         case 115: // down
-            hit = move(matrix, curr, 2);
+            end = move(matrix, curr, orig, 2);
             break;
         case 97: // left
-            hit = move(matrix, curr, 3);
+            end = move(matrix, curr, orig, 3);
             break;
         case 100: // right
-            hit = move(matrix, curr, 4);
+            end = move(matrix, curr, orig, 4);
             break;
         default:
             break;
     };
+    return end;
 }
 
 int checkRow(char matrix[H][W], int row) // 0 == none, 1 == some, 2 == full
@@ -234,11 +278,82 @@ struct piece *initBank()
     pieces[0].dim = 4; // Line
     for (i=0;i<4;i++)
     {
-        *((pieces[0].parts[i]).x = malloc(sizeof(int))) = i+1;
-        *((pieces[0].parts[i]).y = malloc(sizeof(int))) = 2;
-    }
+        *((pieces[0].parts[i]).y = malloc(sizeof(int))) = i+1;
+        *((pieces[0].parts[i]).x = malloc(sizeof(int))) = 2;
+    };
 
+    pieces[1].dim = 4; // Cube
+    {
+        *((pieces[1].parts[0]).y = malloc(sizeof(int))) = 2;
+        *((pieces[1].parts[0]).x = malloc(sizeof(int))) = 2;
+        *((pieces[1].parts[1]).y = malloc(sizeof(int))) = 2;
+        *((pieces[1].parts[1]).x = malloc(sizeof(int))) = 3;
+        *((pieces[1].parts[2]).y = malloc(sizeof(int))) = 3;
+        *((pieces[1].parts[2]).x = malloc(sizeof(int))) = 2;
+        *((pieces[1].parts[3]).y = malloc(sizeof(int))) = 3;
+        *((pieces[1].parts[3]).x = malloc(sizeof(int))) = 3;
+    };
 
+    pieces[2].dim = 3; // Z-piece
+    {
+        *((pieces[2].parts[0]).y = malloc(sizeof(int))) = 1;
+        *((pieces[2].parts[0]).x = malloc(sizeof(int))) = 1;
+        *((pieces[2].parts[1]).y = malloc(sizeof(int))) = 1;
+        *((pieces[2].parts[1]).x = malloc(sizeof(int))) = 2;
+        *((pieces[2].parts[2]).y = malloc(sizeof(int))) = 2;
+        *((pieces[2].parts[2]).x = malloc(sizeof(int))) = 2;
+        *((pieces[2].parts[3]).y = malloc(sizeof(int))) = 2;
+        *((pieces[2].parts[3]).x = malloc(sizeof(int))) = 3;
+    };
+
+    pieces[3].dim = 3; // S-piece
+    {
+        *((pieces[3].parts[0]).y = malloc(sizeof(int))) = 3;
+        *((pieces[3].parts[0]).x = malloc(sizeof(int))) = 1;
+        *((pieces[3].parts[1]).y = malloc(sizeof(int))) = 3;
+        *((pieces[3].parts[1]).x = malloc(sizeof(int))) = 2;
+        *((pieces[3].parts[2]).y = malloc(sizeof(int))) = 2;
+        *((pieces[3].parts[2]).x = malloc(sizeof(int))) = 2;
+        *((pieces[3].parts[3]).y = malloc(sizeof(int))) = 2;
+        *((pieces[3].parts[3]).x = malloc(sizeof(int))) = 3;
+    };
+
+    pieces[4].dim = 3; // T-piece
+    {
+        *((pieces[4].parts[0]).y = malloc(sizeof(int))) = 2;
+        *((pieces[4].parts[0]).x = malloc(sizeof(int))) = 1;
+        *((pieces[4].parts[1]).y = malloc(sizeof(int))) = 1;
+        *((pieces[4].parts[1]).x = malloc(sizeof(int))) = 2;
+        *((pieces[4].parts[2]).y = malloc(sizeof(int))) = 2;
+        *((pieces[4].parts[2]).x = malloc(sizeof(int))) = 2;
+        *((pieces[4].parts[3]).y = malloc(sizeof(int))) = 2;
+        *((pieces[4].parts[3]).x = malloc(sizeof(int))) = 3;
+    };
+
+    pieces[5].dim = 3; // L-piece
+    {
+        *((pieces[5].parts[0]).y = malloc(sizeof(int))) = 1;
+        *((pieces[5].parts[0]).x = malloc(sizeof(int))) = 2;
+        *((pieces[5].parts[1]).y = malloc(sizeof(int))) = 2;
+        *((pieces[5].parts[1]).x = malloc(sizeof(int))) = 2;
+        *((pieces[5].parts[2]).y = malloc(sizeof(int))) = 3;
+        *((pieces[5].parts[2]).x = malloc(sizeof(int))) = 2;
+        *((pieces[5].parts[3]).y = malloc(sizeof(int))) = 3;
+        *((pieces[5].parts[3]).x = malloc(sizeof(int))) = 3;
+    };
+
+    pieces[6].dim = 3; // Rev-L-piece
+    {
+        *((pieces[6].parts[0]).y = malloc(sizeof(int))) = 1;
+        *((pieces[6].parts[0]).x = malloc(sizeof(int))) = 2;
+        *((pieces[6].parts[1]).y = malloc(sizeof(int))) = 2;
+        *((pieces[6].parts[1]).x = malloc(sizeof(int))) = 2;
+        *((pieces[6].parts[2]).y = malloc(sizeof(int))) = 3;
+        *((pieces[6].parts[2]).x = malloc(sizeof(int))) = 2;
+        *((pieces[6].parts[3]).y = malloc(sizeof(int))) = 1;
+        *((pieces[6].parts[3]).x = malloc(sizeof(int))) = 3;
+    };
+// Add other pieces
 
     return pieces;
 }
