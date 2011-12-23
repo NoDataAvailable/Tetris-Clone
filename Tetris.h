@@ -22,7 +22,7 @@ struct piece
 
 typedef enum {false,true} bool;
 
-void init(char matrix[H][W], struct point *curr, struct piece *bank, int *score);
+void init(char matrix[H][W], struct point **curr, struct piece **bank, int *score);
 void dropBlock();
 bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
 void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir);

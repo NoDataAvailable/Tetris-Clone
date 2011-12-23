@@ -3,15 +3,15 @@
 
 //typedef enum {false,true} bool;
 
-int main()
+/*int main()
 {
+    return 0;
+};*/
 
-};
-
-void init(char matrix[H][W], struct point *curr, struct piece *bank, int *score)
+void init(char matrix[H][W], struct point **curr, struct piece **bank, int *score)
 {
     srand ( time(NULL) );
-    bank = initBank();
+    *bank = initBank();
 
     int k,l;
 
@@ -26,9 +26,9 @@ void init(char matrix[H][W], struct point *curr, struct piece *bank, int *score)
 
     matrix[H-1][0] = matrix[H-1][W-1] = '+';
 
-    curr = malloc(sizeof(curr));
-    curr->x = malloc(sizeof(int));
-    curr->y = malloc(sizeof(int));
+    *curr = malloc(sizeof(struct point));
+    (*curr)->x = malloc(sizeof(int));
+    (*curr)->y = malloc(sizeof(int));
 
     score = 0;
 };

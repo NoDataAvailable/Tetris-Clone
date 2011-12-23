@@ -1,38 +1,41 @@
 #include "Tetris.h"
 #include "Tetris_curses.h"
-//#include <curses.h>
+#include <curses.h>
 
 int main()
 {
+
     initscr();
     noecho();
     nodelay(stdscr,TRUE);
-
     char grid[H][W];
     struct point *curr;
     struct piece *bank;
     int score = 0;
-
-    init(grid, curr, bank, &score);
-
+    init(grid, &curr, &bank, &score);
     mprintf(grid, W, H);
+    refresh();
 
     while (!checkRow(grid,0))
     {
+        mvprintw(1,1,"1");
+        refresh();
         struct piece orig = bank[rand()%7];
+        mvprintw(2,1,"2");
+        refresh();
         bool end = false;
         *(curr->x) = W/2-2;
         *(curr->y) = 0;
         int i;
+        refresh();
         for (i=0;i<4;i++)
         {
             grid[ *(curr->y) + *((orig.parts[i]).y) - 1 ][( *(curr->x)) + *((orig.parts[i]).x) - 1 ] = '#'; //implement different chars for diff pieces
         };
-
         mvprintw(2,W+1,"+---------------+", score);
         mvprintw(3,W+1,"| Points: %.5d |", score);
         mvprintw(4,W+1,"+---------------+", score);
-
+        refresh();
         char ch = 0;
         int startTime = clock();
         while (!end) //(i=0;i<10;i++)
