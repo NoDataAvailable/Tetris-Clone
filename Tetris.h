@@ -5,8 +5,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define H 15
+#define H 21
 #define W 12
+
+#define BLOCK 219
+#define BKG 32
 
 struct point
 {
@@ -22,7 +25,7 @@ struct piece
 
 typedef enum {false,true} bool;
 
-void init(char matrix[H][W], struct point **curr, struct piece **bank, int *score);
+void init(char matrix[H][W], struct point **curr, struct piece **bank);
 void dropBlock();
 bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
 void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
