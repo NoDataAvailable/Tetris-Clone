@@ -5,5 +5,5 @@ int main()
 {
     int start = clock();
     while (clock() - start < 100);
-    printf("%d, %d", clock(), start);
+    printf("%ld, %d", clock(), start);
 }

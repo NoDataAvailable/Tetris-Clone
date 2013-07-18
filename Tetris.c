@@ -8,7 +8,7 @@
     return 0;
 };*/
 
-void init(char matrix[H][W], struct point **curr, struct piece **bank, int *score)
+void init(char matrix[H][W], struct point **curr, struct piece **bank)
 {
     srand ( time(NULL) );
     *bank = initBank();
@@ -17,7 +17,7 @@ void init(char matrix[H][W], struct point **curr, struct piece **bank, int *scor
 
     for (k=0;k<H;k++)
         for (l=0;l<W;l++)
-            matrix[k][l] = '.';
+            matrix[k][l] = BKG;
 
     for (k=0;k<H;k++)
         matrix[k][0] = matrix[k][W-1] = '|';
@@ -29,8 +29,6 @@ void init(char matrix[H][W], struct point **curr, struct piece **bank, int *scor
     *curr = malloc(sizeof(struct point));
     (*curr)->x = malloc(sizeof(int));
     (*curr)->y = malloc(sizeof(int));
-
-    score = 0;
 };
 
 void dropBlock()
@@ -68,12 +66,12 @@ bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int di
 
     for (i=0;i<4;i++)
     {
-        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = '.';
+        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = BKG;
     };
 
     for (i=0;i<4;i++)
     {
-        if (matrix[ y[i] + *((orig->parts[i]).y) - 1 ][ x[i] + *((orig->parts[i]).x) - 1 ] != '.')
+        if (matrix[ y[i] + *((orig->parts[i]).y) - 1 ][ x[i] + *((orig->parts[i]).x) - 1 ] != BKG)
             {
                 hit = true;
                 if (dir == 2)
@@ -94,7 +92,7 @@ bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int di
             else
                 *(curr->y) = y[i];
         };
-        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = '#'; //implement different chars for diff pieces
+        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = BLOCK; //implement different chars for diff pieces
     };
 
     return end;
@@ -152,12 +150,12 @@ void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
 
     for (i=0;i<4;i++)
     {
-        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = '.';
+        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = BKG;
     };
 
     for (i=0;i<4;i++)
     {
-        if (matrix[ *(curr->y) + y[i] - 1 ][( *(curr->x)) + x[i] - 1 ] != '.')
+        if (matrix[ *(curr->y) + y[i] - 1 ][( *(curr->x)) + x[i] - 1 ] != BKG)
             hit = true;
     };
 
@@ -174,7 +172,7 @@ void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
             else
                 *((orig->parts[i]).y) = y[i];
         };
-        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = '#'; //implement different chars for diff pieces
+        matrix[ *(curr->y) + *((orig->parts[i]).y) - 1 ][( *(curr->x)) + *((orig->parts[i]).x) - 1 ] = BLOCK; //implement different chars for diff pieces
     };
 };
 
@@ -206,7 +204,7 @@ int checkRow(char matrix[H][W], int row) // 0 == none, 1 == some, 2 == full
     int count, i;
     count = 0;
     for (i=1;i<W-1;i++)
-        if (matrix[row][i] != '.')
+        if (matrix[row][i] != BKG)
             count++;
     if (count == 0)
         return 0;
