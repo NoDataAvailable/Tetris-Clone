@@ -1,0 +1,62 @@
+# depslib dependency file v1.0
+1325731247 source:c:\users\robert\documents\programs\tetris_clone\tetris_curses.c
+	"Tetris.h"
+	"Tetris_curses.h"
+	<curses.h>
+
+1325659658 
+
+1325659658 c:\users\robert\documents\programs\tetris_clone\tetris.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+
+1325660121 c:\users\robert\documents\programs\tetris_clone\tetris_curses.h
+	"Tetris.h"
+
+1325659707 source:c:\users\robert\documents\programs\tetris_clone\tetris.c
+	"Tetris.h"
+
+1325660087 source:c:\users\robert\documents\programs\tetris_clone\tetrisclone\main.c
+	"../Tetris_curses.h"
+
+1325660087 _curses.h"
+
+1325659707 source:/home/robert/Dropbox/Programs/Tetris_Clone/Tetris.c
+	"Tetris.h"
+
+1325659658 /home/robert/Dropbox/Programs/Tetris_Clone/Tetris.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+
+1325660087 source:/home/robert/Dropbox/Programs/Tetris_Clone/TetrisClone/main.c
+	"../Tetris_curses.h"
+
+1325660121 /home/robert/Dropbox/Programs/Tetris_Clone/Tetris_curses.h
+	"Tetris.h"
+
+1325731247 source:/home/robert/Dropbox/Programs/Tetris_Clone/Tetris_curses.c
+	"Tetris.h"
+	"Tetris_curses.h"
+	<curses.h>
+
+1325660087 source:c:\users\robert\dropbox\programs\tetris_clone\tetrisclone\main.c
+	"../Tetris_curses.h"
+
+1325660121 c:\users\robert\dropbox\programs\tetris_clone\tetris_curses.h
+	"Tetris.h"
+
+1325659658 c:\users\robert\dropbox\programs\tetris_clone\tetris.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+
+1326735541 source:c:\users\robert\dropbox\programs\tetris_clone\tetris_curses.c
+	"Tetris.h"
+	"Tetris_curses.h"
+	<curses.h>
+
+1325659707 source:c:\users\robert\dropbox\programs\tetris_clone\tetris.c
+	"Tetris.h"
+

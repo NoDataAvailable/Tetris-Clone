@@ -4,10 +4,14 @@
 
 int main()
 {
-
     initscr();
     noecho();
     nodelay(stdscr,TRUE);
+    start_color();
+    init_pair(1, COLOR_WHITE,COLOR_YELLOW);
+    init_pair(2, COLOR_GREEN,COLOR_BLACK);
+    attron(COLOR_PAIR(1));
+
     char grid[H][W];
     struct point *curr;
     struct piece *bank;
@@ -23,7 +27,7 @@ int main()
         struct piece orig = bank[rand()%7];
         mvprintw(2,1,"2");
         refresh();
-        bool end = false;
+        boolean end = false;
         *(curr->x) = W/2-2;
         *(curr->y) = 0;
         int i;
@@ -40,9 +44,11 @@ int main()
         int startTime = clock();
         while (!end) //(i=0;i<10;i++)
         {
-            refresh();
+            //refresh();
             end = keyParse(ch, grid, curr, &orig);
-            if (clock()-startTime>500000)
+            mvprintw(20,20,"T: %d",clock()-startTime);
+            refresh();
+            if (clock()-startTime>1000000)
             {
                 end = movePiece(grid, curr, &orig, 2);
                 startTime = clock();
@@ -61,6 +67,7 @@ int main()
     refresh();
     nodelay(stdscr,FALSE);
     getch();
+    attroff(COLOR_PAIR(1));
     endwin();
     return 0;
 };
@@ -71,7 +78,14 @@ void mprintf(char matrix[H][W], int length, int height)
     for (i=0;i<height;i++)
     {
         for (j=0;j<length;j++)
+            {
+            int n;
+            if (matrix[i][j]=='|' || matrix[i][j]=='-' || matrix[i][j]=='+') n = 1;
+            else n = 2;
+            attron(COLOR_PAIR(n));
             mvaddch(i+1,j+1,matrix[i][j]);
+            attroff(COLOR_PAIR(n));
+            };
     }
 };
 

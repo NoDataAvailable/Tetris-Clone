@@ -20,13 +20,13 @@ struct piece
     struct point parts[4];
 };
 
-typedef enum {false,true} bool;
+typedef enum {false,true} boolean;
 
 void init(char matrix[H][W], struct point **curr, struct piece **bank, int *score);
 void dropBlock();
-bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
+boolean movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
 void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir);
-bool keyParse(char command, char matrix[H][W], struct point *curr, struct piece *orig);
+boolean keyParse(char command, char matrix[H][W], struct point *curr, struct piece *orig);
 int checkRow(char matrix[H][W], int row);
 int checkAll(char matrix[H][W]);
 struct piece *initBank();

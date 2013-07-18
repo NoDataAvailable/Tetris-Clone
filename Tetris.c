@@ -38,9 +38,9 @@ void dropBlock()
 
 };
 
-bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
+boolean movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
 {
-    bool hit = false, end = false;
+    boolean hit = false, end = false;
     int i;
     int x[4];
     int y[4];
@@ -102,7 +102,7 @@ bool movePiece(char matrix[H][W], struct point *curr, struct piece *orig, int di
 
 void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
 {
-    bool hit = false;
+    boolean hit = false;
     int i;
     int x[4];
     int y[4];
@@ -178,9 +178,9 @@ void rotate(char matrix[H][W], struct point *curr, struct piece *orig, int dir)
     };
 };
 
-bool keyParse(char command, char matrix[H][W], struct point *curr, struct piece *orig)
+boolean keyParse(char command, char matrix[H][W], struct point *curr, struct piece *orig)
 {
-    bool end = false;
+    boolean end = false;
     switch ((int)command)
     {
         case 119: // up
